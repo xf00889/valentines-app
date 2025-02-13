@@ -1,0 +1,189 @@
+{% extends 'valentines_app/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff9f9;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-title {
+        font-family: 'Dancing Script', cursive;
+        color: #ff4b6e;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .upload-form {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        border: 2px dashed #ffb3c1;
+    }
+
+    .form-control-love {
+        border-color: #ffb3c1;
+        background-color: #fff;
+    }
+
+    .form-control-love:focus {
+        border-color: #ff4b6e;
+        box-shadow: 0 0 0 0.2rem rgba(255, 75, 110, 0.25);
+    }
+
+    .btn-love {
+        background: linear-gradient(45deg, #ff4b6e, #ff758c);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-love:hover {
+        transform: scale(1.05);
+        color: white;
+    }
+
+    .image-preview {
+        margin-top: 1rem;
+        text-align: center;
+        display: none;
+    }
+
+    .image-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: #ffb3c1;
+        margin-bottom: 1rem;
+        display: block;
+        text-align: center;
+    }
+
+    .drag-text {
+        text-align: center;
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h2 class="upload-title">Upload Your Romantic Moment 📸</h2>
+    
+    <form method="post" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+        
+        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+        <p class="drag-text">Drag and drop your image here or click to select</p>
+        
+        {{ form|crispy }}
+        
+        <div class="image-preview" id="imagePreview">
+            <img src="" alt="Image Preview">
+        </div>
+        
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-love">
+                Upload Memory <i class="fas fa-heart"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Image preview functionality
+    document.querySelector('input[name="image"]').addEventListener('change', function(e) {
+        const preview = document.getElementById('imagePreview');
+        const file = e.target.files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.style.display = 'block';
+                preview.querySelector('img').src = e.target.result;
+            }
+            
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+        }
+    });
+
+    // Drag and drop functionality
+    const form = document.querySelector('.upload-form');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        form.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        form.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        form.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        form.style.borderColor = '#ff4b6e';
+        form.style.backgroundColor = '#fff9f9';
+    }
+
+    function unhighlight(e) {
+        form.style.borderColor = '#ffb3c1';
+        form.style.backgroundColor = '#fff';
+    }
+
+    form.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length) {
+            document.querySelector('input[name="image"]').files = files;
+            const event = new Event('change');
+            document.querySelector('input[name="image"]').dispatchEvent(event);
+        }
+    }
+</script>
+{% endblock %} 

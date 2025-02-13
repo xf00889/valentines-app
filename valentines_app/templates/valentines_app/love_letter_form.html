@@ -1,0 +1,148 @@
+{% extends 'valentines_app/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block extra_css %}
+<style>
+    .letter-form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--shadow-romantic);
+        border: 2px solid var(--color-accent);
+    }
+
+    .letter-form-title {
+        font-family: 'Dancing Script', cursive;
+        color: var(--color-primary);
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: clamp(2rem, 5vw, 2.5rem);
+        text-shadow: 2px 2px 15px rgba(227, 27, 84, 0.2);
+    }
+
+    .handwritten-font {
+        font-family: 'Dancing Script', cursive !important;
+        font-size: 1.2rem !important;
+        color: var(--color-text) !important;
+    }
+
+    .form-control-love {
+        border: 1px solid var(--color-accent);
+        background-color: white;
+        border-radius: 12px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-love:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(227, 27, 84, 0.1);
+    }
+
+    .btn-love {
+        background: var(--gradient-romantic);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-romantic);
+        margin-top: 1rem;
+    }
+
+    .btn-love:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(227, 27, 84, 0.25);
+        color: white;
+    }
+
+    .music-player {
+        margin-top: 2rem;
+        text-align: center;
+        padding: 1.5rem;
+        background: var(--color-background);
+        border-radius: 15px;
+        border: 1px solid var(--color-accent);
+    }
+
+    .music-note {
+        color: var(--color-primary);
+        animation: bounce 1s infinite;
+        display: inline-block;
+        font-size: 1.5rem;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    .music-preview {
+        width: 100%;
+        margin-top: 1rem;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .letter-form-container {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+    }
+
+    @media (hover: none) {
+        .btn-love:hover {
+            transform: none;
+            box-shadow: var(--shadow-romantic);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="letter-form-container">
+    <h2 class="letter-form-title">Write Your Love Letter 💌</h2>
+    
+    <form method="post" enctype="multipart/form-data" class="love-letter-form">
+        {% csrf_token %}
+        {{ form|crispy }}
+        
+        <div class="music-player">
+            <span class="music-note">♪</span>
+            <span class="music-note" style="animation-delay: 0.2s">♫</span>
+            <span class="music-note" style="animation-delay: 0.4s">♪</span>
+        </div>
+        
+        <div class="text-center">
+            <button type="submit" class="btn-love">
+                Send with Love <i class="fas fa-heart"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelector('input[name="background_music"]').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const audio = document.createElement('audio');
+            audio.src = URL.createObjectURL(file);
+            audio.controls = true;
+            audio.className = 'music-preview';
+            
+            const existingAudio = document.querySelector('.music-preview');
+            if (existingAudio) {
+                existingAudio.remove();
+            }
+            
+            document.querySelector('.music-player').appendChild(audio);
+        }
+    });
+</script>
+{% endblock %} 

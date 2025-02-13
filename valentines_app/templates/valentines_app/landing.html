@@ -1,0 +1,264 @@
+{% extends 'valentines_app/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --color-primary: #e31b54;
+        --color-primary-light: #ff4d7c;
+        --color-primary-dark: #c41345;
+        --color-secondary: #ff85a1;
+        --color-accent: #ffd6e0;
+        --color-background: #fff0f3;
+        --color-text: #2c1810;
+        --color-text-light: #4a3830;
+        --gradient-romantic: linear-gradient(135deg, #ff85a1, #ff4d7c);
+        --shadow-romantic: 0 8px 25px rgba(227, 27, 84, 0.15);
+    }
+
+    .landing-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+            to bottom,
+            var(--color-background),
+            white 80%,
+            var(--color-accent)
+        );
+        padding: 2rem;
+    }
+
+    .floating-element {
+        position: absolute;
+        animation: float-animation var(--float-duration) linear infinite;
+        opacity: var(--initial-opacity);
+        z-index: -1;
+        font-size: var(--size);
+        transform-origin: center;
+        filter: drop-shadow(0 2px 4px rgba(227, 27, 84, 0.15));
+    }
+
+    .heart {
+        color: var(--color);
+    }
+
+    .rose {
+        color: var(--color);
+    }
+
+    @keyframes float-animation {
+        0% {
+            transform: translate(var(--start-x), 110vh) rotate(0deg);
+            opacity: var(--initial-opacity);
+        }
+        50% {
+            opacity: var(--mid-opacity);
+            transform: translate(
+                calc(var(--start-x) + var(--drift-x)), 
+                50vh
+            ) rotate(var(--rotation));
+        }
+        100% {
+            transform: translate(
+                calc(var(--start-x) + var(--drift-x) * 2), 
+                -10vh
+            ) rotate(calc(var(--rotation) * 2));
+            opacity: 0;
+        }
+    }
+
+    .welcome-text {
+        font-family: 'Dancing Script', cursive;
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        color: var(--color-primary);
+        text-align: center;
+        margin-bottom: 2rem;
+        opacity: 0;
+        animation: fade-in 2s ease-in forwards;
+        text-shadow: 2px 2px 15px rgba(227, 27, 84, 0.2);
+    }
+
+    .surprise-btn {
+        background: var(--gradient-romantic);
+        color: white;
+        border: none;
+        padding: 1.2rem 2.5rem;
+        border-radius: 50px;
+        font-size: clamp(1rem, 3vw, 1.2rem);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        opacity: 0;
+        animation: fade-in 2s ease-in forwards 1s;
+        box-shadow: var(--shadow-romantic);
+    }
+
+    .surprise-btn:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 12px 30px rgba(227, 27, 84, 0.25);
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .surprise-message {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow-romantic);
+        z-index: 1000;
+        text-align: center;
+        max-width: 90%;
+        width: 400px;
+        animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border: 2px solid var(--color-accent);
+    }
+
+    .surprise-message h2 {
+        color: var(--color-primary);
+        margin-bottom: 1rem;
+        font-size: clamp(1.8rem, 5vw, 2.2rem);
+    }
+
+    .surprise-message p {
+        color: var(--color-text-light);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .close-btn {
+        background: var(--gradient-romantic);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-romantic);
+    }
+
+    .close-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(227, 27, 84, 0.2);
+    }
+
+    @keyframes pop-in {
+        from {
+            transform: translate(-50%, -50%) scale(0);
+        }
+        to {
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    @media (hover: none) {
+        .surprise-btn:hover,
+        .close-btn:hover {
+            transform: none;
+            box-shadow: var(--shadow-romantic);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <h1 class="welcome-text">Happy Valentine's Day! ❤️</h1>
+    <button class="surprise-btn" onclick="showSurprise()">
+        Click for a Surprise! 🎁
+    </button>
+    <div id="surprise-message" class="surprise-message">
+        <h2 style="font-family: 'Dancing Script', cursive;">
+            You're Amazing! 🌹
+        </h2>
+        <p>
+            Wishing you a day filled with love, joy, and beautiful moments!
+        </p>
+        <button class="close-btn" onclick="closeSurprise()">
+            Close ×
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function createFloatingElement(type) {
+        const container = document.querySelector('.landing-container');
+        const element = document.createElement('div');
+        
+        // Random properties
+        const size = Math.random() * 30 + 20;
+        const startX = Math.random() * 100;
+        const driftX = (Math.random() - 0.5) * 200;
+        const rotation = (Math.random() - 0.5) * 720;
+        const duration = Math.random() * 8 + 6;
+        const initialOpacity = Math.random() * 0.3 + 0.3;
+        const midOpacity = Math.random() * 0.4 + 0.4;
+        
+        // Valentine's color variations
+        const colors = type === 'heart' 
+            ? ['#e31b54', '#ff4d7c', '#ff85a1', '#ffa4ba']
+            : ['#e31b54', '#c41345', '#ff4d7c', '#ff85a1'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        element.className = `floating-element ${type}`;
+        element.innerHTML = type === 'heart' ? '❤️' : '🌹';
+        element.style.setProperty('--size', `${size}px`);
+        element.style.setProperty('--start-x', `${startX}vw`);
+        element.style.setProperty('--drift-x', `${driftX}px`);
+        element.style.setProperty('--rotation', `${rotation}deg`);
+        element.style.setProperty('--float-duration', `${duration}s`);
+        element.style.setProperty('--initial-opacity', initialOpacity);
+        element.style.setProperty('--mid-opacity', midOpacity);
+        element.style.setProperty('--color', color);
+        
+        container.appendChild(element);
+        
+        setTimeout(() => {
+            element.remove();
+        }, duration * 1000);
+    }
+
+    // Create elements periodically
+    function createElements() {
+        if (Math.random() < 0.7) { // 70% chance for hearts
+            createFloatingElement('heart');
+        } else {
+            createFloatingElement('rose');
+        }
+    }
+
+    // Create elements every 300ms
+    setInterval(createElements, 300);
+
+    // Surprise message functions
+    function showSurprise() {
+        const message = document.getElementById('surprise-message');
+        message.style.display = 'block';
+    }
+
+    function closeSurprise() {
+        const message = document.getElementById('surprise-message');
+        message.style.display = 'none';
+    }
+</script>
+{% endblock %} 

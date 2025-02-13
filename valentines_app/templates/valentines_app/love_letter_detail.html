@@ -1,0 +1,156 @@
+{% extends 'valentines_app/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .letter-detail-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff9f9;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .letter-detail-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255, 75, 110, 0.1), rgba(255, 117, 140, 0.1));
+        border-radius: 15px;
+        z-index: 0;
+    }
+
+    .letter-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .letter-title {
+        font-family: 'Dancing Script', cursive;
+        color: #ff4b6e;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .letter-text {
+        font-family: 'Dancing Script', cursive;
+        font-size: 1.4rem;
+        line-height: 1.8;
+        color: #444;
+        margin-bottom: 2rem;
+        white-space: pre-line;
+    }
+
+    .letter-date {
+        text-align: right;
+        font-size: 1rem;
+        color: #888;
+        font-style: italic;
+    }
+
+    .music-player {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .music-player h4 {
+        font-family: 'Dancing Script', cursive;
+        color: #ff4b6e;
+        margin-bottom: 1rem;
+    }
+
+    .music-controls {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .back-btn {
+        display: inline-block;
+        margin-top: 2rem;
+        padding: 0.75rem 2rem;
+        background: linear-gradient(45deg, #ff4b6e, #ff758c);
+        color: white;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: transform 0.3s ease;
+    }
+
+    .back-btn:hover {
+        transform: scale(1.05);
+        color: white;
+        text-decoration: none;
+    }
+
+    .letter-decoration {
+        position: absolute;
+        font-size: 2rem;
+        opacity: 0.1;
+        z-index: 0;
+    }
+
+    .heart-1 { top: 10%; left: 5%; transform: rotate(-15deg); }
+    .heart-2 { top: 20%; right: 5%; transform: rotate(15deg); }
+    .heart-3 { bottom: 15%; left: 8%; transform: rotate(10deg); }
+    .heart-4 { bottom: 10%; right: 7%; transform: rotate(-10deg); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="letter-detail-container paper-texture">
+    <div class="letter-decoration heart-1">❤️</div>
+    <div class="letter-decoration heart-2">❤️</div>
+    <div class="letter-decoration heart-3">❤️</div>
+    <div class="letter-decoration heart-4">❤️</div>
+
+    <div class="letter-content">
+        <h1 class="letter-title">{{ letter.title }}</h1>
+        
+        <div class="letter-text">
+            {{ letter.content }}
+        </div>
+        
+        <div class="letter-date">
+            <i class="far fa-calendar-alt"></i>
+            {{ letter.created_at|date:"F d, Y" }}
+        </div>
+
+        {% if letter.background_music %}
+            <div class="music-player">
+                <h4><i class="fas fa-music"></i> Background Music</h4>
+                <audio class="music-controls" controls loop>
+                    <source src="{{ letter.background_music.url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        {% endif %}
+
+        <div class="text-center">
+            <a href="{% url 'valentines_app:love-letter-list' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Letters
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-play background music when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const audio = document.querySelector('audio');
+        if (audio) {
+            audio.volume = 0.5; // Set initial volume to 50%
+        }
+    });
+</script>
+{% endblock %} 
