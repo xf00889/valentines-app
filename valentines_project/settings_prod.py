@@ -2,26 +2,26 @@ from .settings import *
 
 DEBUG = False
 
-# Replace yourusername with your PythonAnywhere username
-ALLOWED_HOSTS = ['yourusername.pythonanywhere.com']
+# Updated with your PythonAnywhere username
+ALLOWED_HOSTS = ['hutchie.pythonanywhere.com']
 
 # Database settings
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'yourusername$valentines_db',
-        'USER': 'yourusername',
+        'NAME': 'hutchie$valentines_db',
+        'USER': 'hutchie',
         'PASSWORD': 'your-database-password',  # Set this in PythonAnywhere's bash console
-        'HOST': 'yourusername.mysql.pythonanywhere-services.com',
+        'HOST': 'hutchie.mysql.pythonanywhere-services.com',
     }
 }
 
 # Static files configuration
-STATIC_ROOT = '/home/yourusername/valentines-app/static'
+STATIC_ROOT = '/home/hutchie/valentines-app/static'
 STATIC_URL = '/static/'
 
 # Media files configuration
-MEDIA_ROOT = '/home/yourusername/valentines-app/media'
+MEDIA_ROOT = '/home/hutchie/valentines-app/media'
 MEDIA_URL = '/media/'
 
 # Security settings

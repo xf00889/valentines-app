@@ -1,8 +1,8 @@
 import os
 import sys
 
-# Replace yourusername with your PythonAnywhere username
-path = '/home/yourusername/valentines-app'
+# Updated with your PythonAnywhere username
+path = '/home/hutchie/valentines-app'
 if path not in sys.path:
     sys.path.append(path)
 
