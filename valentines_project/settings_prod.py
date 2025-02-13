@@ -11,7 +11,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'hutchie$valentines_db',
         'USER': 'hutchie',
-        'PASSWORD': 'your-database-password',  # Set this in PythonAnywhere's bash console
+        'PASSWORD': 'valiao#ABCD',
         'HOST': 'hutchie.mysql.pythonanywhere-services.com',
     }
 }
