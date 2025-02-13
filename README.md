@@ -2,6 +2,17 @@
 
 A romantic and interactive Valentine's Day web application built with Django and MySQL. Features include love letter writing with background music, photo gallery with lightbox view, and animated elements.
 
+## 📌 Table of Contents
+- [Features](#-features)
+- [Prerequisites](#-prerequisites)
+- [Dependencies](#-dependencies)
+- [Quick Start](#-quick-start)
+- [Deployment](#-deployment-to-pythonanywhere)
+- [Security](#-security-considerations)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Acknowledgments](#-acknowledgments)
+
 ## ✨ Features
 
 - 💌 Love Letter Writing with Background Music
@@ -17,10 +28,11 @@ A romantic and interactive Valentine's Day web application built with Django and
 - Python 3.8+
 - MySQL 5.7+
 - pip (Python package manager)
+- Git (for version control)
 
 ## 📦 Dependencies
 
-This project uses the following main packages:
+Main dependencies include:
 ```
 Django==5.1.5
 mysqlclient==2.2.7
@@ -29,6 +41,8 @@ django-crispy-forms==2.3
 crispy-bootstrap5==2024.10
 python-dotenv==1.0.1
 ```
+
+For a complete list of dependencies, see `requirements.txt`.
 
 ## 🚀 Quick Start
 
@@ -56,6 +70,8 @@ pip install -r requirements.txt
 ```env
 DJANGO_SECRET_KEY=your_secret_key_here
 DATABASE_PASSWORD=your_database_password
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
 5. Configure the database in `valentines_project/settings.py`:
@@ -156,13 +172,9 @@ Visit http://127.0.0.1:8000/ to see the application.
    - URL: /static/
    - Directory: /home/yourusername/valentines-app/static
 
-8. Apply migrations:
+8. Apply migrations and create superuser:
    ```bash
    python manage.py migrate
-   ```
-
-9. Create superuser:
-   ```bash
    python manage.py createsuperuser
    ```
 
@@ -174,6 +186,9 @@ Visit http://127.0.0.1:8000/ to see the application.
 - Enable HTTPS (automatically handled by PythonAnywhere)
 - Regularly update dependencies
 - Back up your database regularly
+- Set appropriate file permissions
+- Configure proper CORS headers if needed
+- Implement rate limiting for API endpoints
 
 ## 🤝 Contributing
 
@@ -182,6 +197,13 @@ Visit http://127.0.0.1:8000/ to see the application.
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+Please read our [Contributing Guidelines](.github/CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## 🐛 Bug Reports and Feature Requests
+
+- For bug reports, please use our [Bug Report Template](.github/ISSUE_TEMPLATE/bug_report.md)
+- For feature requests, please use our [Feature Request Template](.github/ISSUE_TEMPLATE/feature_request.md)
 
 ## 📝 License
 
@@ -193,3 +215,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Font Awesome for icons
 - Google Fonts for typography
 - Django community for the amazing framework
+- All our contributors and users
+
+## 📊 Project Status
+
+This project is actively maintained. For the latest updates and planned features, check our [Issues](https://github.com/xf00889/valentines-app/issues) page.
+
+## 📧 Contact
+
+For questions and support, please:
+1. Check our [FAQ](docs/FAQ.md) first
+2. Search existing [Issues](https://github.com/xf00889/valentines-app/issues)
+3. Open a new issue if needed
