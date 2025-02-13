@@ -51,6 +51,28 @@
         background: var(--gradient-romantic);
     }
 
+    .letter-title {
+        font-family: 'Dancing Script', cursive;
+        color: var(--color-primary);
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .letter-preview {
+        font-family: 'Dancing Script', cursive;
+        color: var(--color-text);
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .letter-content {
         font-family: 'Dancing Script', cursive;
         color: var(--color-text);
@@ -58,15 +80,11 @@
         line-height: 1.6;
         margin-bottom: 1.5rem;
         position: relative;
+        display: none;
     }
 
-    .letter-content::before,
-    .letter-content::after {
-        content: '"';
-        color: var(--color-primary);
-        font-size: 2rem;
-        font-family: serif;
-        opacity: 0.5;
+    .letter-content.expanded {
+        display: block;
     }
 
     .letter-meta {
@@ -84,10 +102,44 @@
         font-style: italic;
     }
 
-    .letter-music {
+    .music-player {
         margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        text-align: center;
+        display: none;
+    }
+
+    .music-player.expanded {
+        display: block;
+    }
+
+    .music-controls {
         width: 100%;
-        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .view-letter-btn {
+        display: inline-block;
+        background: var(--gradient-romantic);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        margin: 1rem auto;
+        text-align: center;
+        box-shadow: var(--shadow-romantic);
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .view-letter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(227, 27, 84, 0.25);
+        color: white;
+        text-decoration: none;
     }
 
     .create-letter-btn {
@@ -138,7 +190,8 @@
             box-shadow: var(--shadow-romantic);
         }
 
-        .create-letter-btn:hover {
+        .create-letter-btn:hover,
+        .view-letter-btn:hover {
             transform: none;
             box-shadow: var(--shadow-romantic);
         }
@@ -159,19 +212,34 @@
     {% if object_list %}
     <div class="letters-grid">
         {% for letter in object_list %}
-        <div class="letter-card">
+        <div class="letter-card" data-letter-id="{{ letter.id }}">
+            <h3 class="letter-title">{{ letter.title }}</h3>
+            <div class="letter-preview">
+                {{ letter.content }}
+            </div>
             <div class="letter-content">
                 {{ letter.content }}
             </div>
             {% if letter.background_music %}
-            <audio controls class="letter-music">
-                <source src="{{ letter.background_music.url }}" type="audio/mpeg">
-                Your browser does not support the audio element.
-            </audio>
+            <div class="music-player">
+                <h4>
+                    <i class="fas fa-music"></i>
+                    Background Music
+                    <button class="toggle-music btn btn-sm btn-outline-danger">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </h4>
+                <audio class="music-controls" controls loop>
+                    <source src="{{ letter.background_music.url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
             {% endif %}
             <div class="letter-meta">
                 <span class="letter-date">{{ letter.created_at|date:"F j, Y" }}</span>
-                <i class="fas fa-heart" style="color: var(--color-primary);"></i>
+                <button class="view-letter-btn">
+                    <i class="fas fa-eye"></i> View Letter
+                </button>
             </div>
         </div>
         {% endfor %}
@@ -182,4 +250,93 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const letterCards = document.querySelectorAll('.letter-card');
+    let currentlyPlaying = null;
+
+    letterCards.forEach(card => {
+        const viewBtn = card.querySelector('.view-letter-btn');
+        const content = card.querySelector('.letter-content');
+        const preview = card.querySelector('.letter-preview');
+        const musicPlayer = card.querySelector('.music-player');
+        const audio = musicPlayer ? musicPlayer.querySelector('audio') : null;
+        const toggleBtn = musicPlayer ? musicPlayer.querySelector('.toggle-music') : null;
+
+        // Stop all other playing audio when a new one starts
+        if (audio) {
+            audio.addEventListener('play', function() {
+                if (currentlyPlaying && currentlyPlaying !== audio) {
+                    currentlyPlaying.pause();
+                }
+                currentlyPlaying = audio;
+            });
+        }
+
+        viewBtn.addEventListener('click', function() {
+            const isExpanded = content.classList.contains('expanded');
+            
+            // First collapse all expanded letters
+            letterCards.forEach(otherCard => {
+                if (otherCard !== card) {
+                    const otherContent = otherCard.querySelector('.letter-content');
+                    const otherPreview = otherCard.querySelector('.letter-preview');
+                    const otherMusicPlayer = otherCard.querySelector('.music-player');
+                    const otherAudio = otherMusicPlayer ? otherMusicPlayer.querySelector('audio') : null;
+                    const otherToggleBtn = otherMusicPlayer ? otherMusicPlayer.querySelector('.toggle-music') : null;
+
+                    otherContent.classList.remove('expanded');
+                    otherPreview.style.display = 'block';
+                    if (otherMusicPlayer) {
+                        otherMusicPlayer.classList.remove('expanded');
+                    }
+                    if (otherAudio) {
+                        otherAudio.pause();
+                        if (otherToggleBtn) {
+                            otherToggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        }
+                    }
+                }
+            });
+
+            // Then toggle the clicked letter
+            if (!isExpanded) {
+                content.classList.add('expanded');
+                preview.style.display = 'none';
+                if (musicPlayer) {
+                    musicPlayer.classList.add('expanded');
+                }
+                viewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Close Letter';
+            } else {
+                content.classList.remove('expanded');
+                preview.style.display = 'block';
+                if (musicPlayer) {
+                    musicPlayer.classList.remove('expanded');
+                    if (audio) {
+                        audio.pause();
+                        toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    }
+                }
+                viewBtn.innerHTML = '<i class="fas fa-eye"></i> View Letter';
+            }
+        });
+
+        // Add music toggle functionality
+        if (toggleBtn && audio) {
+            toggleBtn.addEventListener('click', function() {
+                if (audio.paused) {
+                    audio.play();
+                    toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                } else {
+                    audio.pause();
+                    toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            });
+        }
+    });
+});
+</script>
 {% endblock %} 
