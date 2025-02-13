@@ -1,6 +1,6 @@
 from .settings import *
 
-DEBUG = False
+DEBUG = True  # Temporarily set to True to see errors
 
 # Updated with your PythonAnywhere username
 ALLOWED_HOSTS = ['hutchie.pythonanywhere.com']
@@ -25,7 +25,7 @@ MEDIA_ROOT = '/home/hutchie/valentines-app/media'
 MEDIA_URL = '/media/'
 
 # Security settings
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False  # Temporarily disable for debugging
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
