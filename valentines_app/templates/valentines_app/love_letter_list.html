@@ -271,6 +271,11 @@ document.addEventListener('DOMContentLoaded', function() {
             audio.addEventListener('play', function() {
                 if (currentlyPlaying && currentlyPlaying !== audio) {
                     currentlyPlaying.pause();
+                    const otherCard = currentlyPlaying.closest('.letter-card');
+                    const otherToggleBtn = otherCard.querySelector('.toggle-music');
+                    if (otherToggleBtn) {
+                        otherToggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    }
                 }
                 currentlyPlaying = audio;
             });
@@ -308,6 +313,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 preview.style.display = 'none';
                 if (musicPlayer) {
                     musicPlayer.classList.add('expanded');
+                    // Automatically play music when expanding
+                    if (audio) {
+                        const playPromise = audio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(_ => {
+                                toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                            })
+                            .catch(error => {
+                                console.log("Autoplay prevented:", error);
+                                toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+                            });
+                        }
+                    }
                 }
                 viewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Close Letter';
             } else {
@@ -328,12 +346,33 @@ document.addEventListener('DOMContentLoaded', function() {
         if (toggleBtn && audio) {
             toggleBtn.addEventListener('click', function() {
                 if (audio.paused) {
-                    audio.play();
-                    toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    const playPromise = audio.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(_ => {
+                            toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        })
+                        .catch(error => {
+                            console.log("Playback prevented:", error);
+                            toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        });
+                    }
                 } else {
                     audio.pause();
                     toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
                 }
+            });
+
+            // Update toggle button on audio events
+            audio.addEventListener('play', function() {
+                toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            });
+
+            audio.addEventListener('pause', function() {
+                toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
+            });
+
+            audio.addEventListener('ended', function() {
+                toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
             });
         }
     });

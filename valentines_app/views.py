@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, DetailView
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import LoveLetter, GalleryImage
 from .forms import LoveLetterForm, GalleryImageForm
 
@@ -15,8 +16,25 @@ class LoveLetterCreateView(CreateView):
     success_url = reverse_lazy('valentines_app:love-letter-list')
 
     def form_valid(self, form):
+        response = super().form_valid(form)
         messages.success(self.request, 'Your love letter has been created! ❤️')
-        return super().form_valid(form)
+        
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Love letter created successfully!',
+                'redirect_url': self.success_url
+            })
+        return response
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'status': 'error',
+                'errors': form.errors
+            }, status=400)
+        return response
 
 class LoveLetterListView(ListView):
     model = LoveLetter

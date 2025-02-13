@@ -100,10 +100,82 @@
             box-shadow: var(--shadow-romantic);
         }
     }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .loading-content {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: var(--shadow-romantic);
+        border: 2px solid var(--color-accent);
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--color-accent);
+        border-radius: 50%;
+        border-top-color: var(--color-primary);
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        font-family: 'Dancing Script', cursive;
+        color: var(--color-primary);
+        font-size: 1.2rem;
+        margin-top: 1rem;
+    }
+
+    .upload-progress {
+        width: 100%;
+        height: 4px;
+        background: #f0f0f0;
+        border-radius: 2px;
+        margin-top: 1rem;
+        overflow: hidden;
+        display: none;
+    }
+
+    .upload-progress-bar {
+        height: 100%;
+        background: var(--gradient-romantic);
+        width: 0;
+        transition: width 0.3s ease;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="loading-overlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Uploading your love letter...</div>
+        <div class="upload-progress">
+            <div class="upload-progress-bar"></div>
+        </div>
+    </div>
+</div>
+
 <div class="letter-form-container">
     <h2 class="letter-form-title">Write Your Love Letter 💌</h2>
     
@@ -128,21 +200,78 @@
 
 {% block extra_js %}
 <script>
-    document.querySelector('input[name="background_music"]').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const audio = document.createElement('audio');
-            audio.src = URL.createObjectURL(file);
-            audio.controls = true;
-            audio.className = 'music-preview';
-            
-            const existingAudio = document.querySelector('.music-preview');
-            if (existingAudio) {
-                existingAudio.remove();
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.love-letter-form');
+        const loadingOverlay = document.querySelector('.loading-overlay');
+        const progressBar = document.querySelector('.upload-progress-bar');
+        const loadingText = document.querySelector('.loading-text');
+        const uploadProgress = document.querySelector('.upload-progress');
+        let isUploading = false;
+
+        // Handle music file preview
+        document.querySelector('input[name="background_music"]').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const audio = document.createElement('audio');
+                audio.src = URL.createObjectURL(file);
+                audio.controls = true;
+                audio.className = 'music-preview';
+                
+                const existingAudio = document.querySelector('.music-preview');
+                if (existingAudio) {
+                    existingAudio.remove();
+                }
+                
+                document.querySelector('.music-player').appendChild(audio);
             }
-            
-            document.querySelector('.music-player').appendChild(audio);
-        }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (isUploading) return;
+
+            const formData = new FormData(form);
+            const musicFile = formData.get('background_music');
+
+            if (musicFile && musicFile.size > 0) {
+                isUploading = true;
+                loadingOverlay.style.display = 'flex';
+                uploadProgress.style.display = 'block';
+                
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', form.action, true);
+
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressBar.style.width = percentComplete + '%';
+                        loadingText.textContent = `Uploading your love letter... ${Math.round(percentComplete)}%`;
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        window.location.href = response.redirect_url;
+                    } else {
+                        loadingOverlay.style.display = 'none';
+                        alert('An error occurred while uploading. Please try again.');
+                    }
+                    isUploading = false;
+                };
+
+                xhr.onerror = function() {
+                    loadingOverlay.style.display = 'none';
+                    alert('An error occurred while uploading. Please try again.');
+                    isUploading = false;
+                };
+
+                xhr.send(formData);
+            } else {
+                form.submit();
+            }
+        });
     });
 </script>
 {% endblock %} 
